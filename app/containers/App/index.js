@@ -6,45 +6,76 @@
  * contain code that should be seen on all pages. (e.g. navigation bar)
  */
 
-import React from 'react';
-import { Helmet } from 'react-helmet';
-import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
-
-import HomePage from 'containers/HomePage/Loadable';
-import FeaturePage from 'containers/FeaturePage/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
-import Header from 'components/Header';
-import Footer from 'components/Footer';
-
+import React, { useCallback, useEffect } from 'react';
+import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
+import routes from './routes';
+import LoginPage from 'containers/LoginPage/Loadable';
 import GlobalStyle from '../../global-styles';
+import PrivateRoute from './privateRoute';
+import { makeSelectRole } from '../LoginPage/selectors';
+import { compose } from 'redux';
+import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
+import jwt from 'jwt-decode';
 
-const AppWrapper = styled.div`
-  max-width: calc(768px + 16px * 2);
-  margin: 0 auto;
-  display: flex;
-  min-height: 100%;
-  padding: 0 16px;
-  flex-direction: column;
-`;
+// max-width: calc(768px + 16px * 5);
+import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import { loginSuccess } from '../LoginPage/actions';
 
-export default function App() {
+function App({ role, autoLogin }) {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      autoLogin(token);
+      const decoded = jwt(token, { header: true });
+      const { exp } = decoded;
+      if (new Date(exp * 1000) < Date.now()) {
+        console.log('blabla');
+      }
+    }
+  }, []);
+
+  const renderRoute = () => {
+    let result = null;
+    //filter
+    result = routes
+      .filter(matchRoute => {
+        return matchRoute.role.includes(role);
+      })
+      .map((route, index) => {
+        return (
+          <PrivateRoute
+            key={index}
+            path={route.path}
+            component={route.component}
+            layout={route.layout}
+          />
+        );
+      });
+    return result;
+  };
   return (
-    <AppWrapper>
-      <Helmet
-        titleTemplate="%s - React.js Boilerplate"
-        defaultTitle="React.js Boilerplate"
-      >
-        <meta name="description" content="A React.js Boilerplate application" />
-      </Helmet>
-      <Header />
+    <Router>
       <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route path="/features" component={FeaturePage} />
-        <Route path="" component={NotFoundPage} />
+        <Route exact path="/login" component={LoginPage} />
+        {renderRoute()}
+        <PrivateRoute path="" component={NotFoundPage} />
       </Switch>
-      <Footer />
       <GlobalStyle />
-    </AppWrapper>
+    </Router>
   );
 }
+const mapStateToProps = createStructuredSelector({
+  role: makeSelectRole(),
+});
+
+const mapDispatchToProps = dispatch => {
+  return {
+    autoLogin: data => dispatch(loginSuccess(data)),
+  };
+};
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+export default compose(withConnect)(App);

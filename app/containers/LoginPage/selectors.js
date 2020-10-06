@@ -20,6 +20,37 @@ const makeSelectLoginPage = () =>
     selectLoginPageDomain,
     substate => substate,
   );
-
+const makeSelectUsername = () =>
+  createSelector(
+    selectLoginPageDomain,
+    loginState => loginState.username,
+  );
+const makeSelectRole = () =>
+  createSelector(
+    selectLoginPageDomain,
+    loginState => loginState.role,
+  );
+const makeSelectLoading = () =>
+  createSelector(
+    selectLoginPageDomain,
+    loginState => loginState.loading,
+  );
+const makeSelectError = () =>
+  createSelector(
+    selectLoginPageDomain,
+    loginState => loginState.error,
+  );
+const makeSelectIsLoggin = () =>
+  createSelector(
+    selectLoginPageDomain,
+    loginState => loginState.isLoggin,
+  );
 export default makeSelectLoginPage;
-export { selectLoginPageDomain };
+export {
+  selectLoginPageDomain,
+  makeSelectUsername,
+  makeSelectRole,
+  makeSelectLoading,
+  makeSelectError,
+  makeSelectIsLoggin,
+};

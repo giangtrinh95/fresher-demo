@@ -1,10 +1,10 @@
 /**
  *
- * Asynchronously loads the component for LoginPage
+ * Asynchronously loads the component for Layouts
  *
  */
-
 import React from 'react';
+
 import loadable from 'utils/loadable';
 import LoadingIndicator from 'components/LoadingIndicator';
 
