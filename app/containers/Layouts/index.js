@@ -32,12 +32,14 @@ import {
   Route,
   BrowserRouter as Router,
   Link as routerLink,
+  useLocation,
 } from 'react-router-dom';
 import { makeSelectRole } from '../LoginPage/selectors';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { Button } from '@material-ui/core';
 import { logout } from '../LoginPage/actions';
+import useFilterMap from '../../components/hooks/useFilterMap';
 
 function Layouts(props) {
   const classes = useStyles();
@@ -55,20 +57,18 @@ function Layouts(props) {
   };
   const renderRoutes = () => {
     let result = null;
-
-    result = routes
-      .filter(matchRoute => matchRoute.role.includes(props.role))
-      .map((route, index) => (
-        <ListItem
-          button
-          component={routerLink}
-          to={`${route.path}`}
-          key={route.name}
-        >
-          <ListItemIcon>{route.icon}</ListItemIcon>
-          <ListItemText primary={route.name} />
-        </ListItem>
-      ));
+    const dataRoute = useFilterMap(props.role);
+    result = dataRoute.map((route, index) => (
+      <ListItem
+        button
+        component={routerLink}
+        to={`${route.path}`}
+        key={route.name}
+      >
+        <ListItemIcon>{route.icon}</ListItemIcon>
+        <ListItemText primary={route.name} />
+      </ListItem>
+    ));
     return result;
   };
 

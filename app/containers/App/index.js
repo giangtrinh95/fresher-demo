@@ -7,7 +7,14 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
-import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
+import {
+  Switch,
+  Route,
+  BrowserRouter as Router,
+  useLocation,
+  Redirect,
+  useHistory,
+} from 'react-router-dom';
 import routes from './routes';
 import LoginPage from 'containers/LoginPage/Loadable';
 import GlobalStyle from '../../global-styles';
@@ -21,10 +28,12 @@ import jwt from 'jwt-decode';
 // max-width: calc(768px + 16px * 5);
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import { loginSuccess } from '../LoginPage/actions';
+import useFilterMap from '../../components/hooks/useFilterMap';
 
 function App({ role, autoLogin }) {
+  const dataRoute = useFilterMap(role);
+  const token = localStorage.getItem('token');
   useEffect(() => {
-    const token = localStorage.getItem('token');
     if (token) {
       autoLogin(token);
       const decoded = jwt(token, { header: true });
@@ -38,20 +47,17 @@ function App({ role, autoLogin }) {
   const renderRoute = () => {
     let result = null;
     //filter
-    result = routes
-      .filter(matchRoute => {
-        return matchRoute.role.includes(role);
-      })
-      .map((route, index) => {
-        return (
-          <PrivateRoute
-            key={index}
-            path={route.path}
-            component={route.component}
-            layout={route.layout}
-          />
-        );
-      });
+
+    result = dataRoute.map((route, index) => {
+      return (
+        <PrivateRoute
+          key={index}
+          path={route.path}
+          component={route.component}
+          layout={route.layout}
+        />
+      );
+    });
     return result;
   };
   return (

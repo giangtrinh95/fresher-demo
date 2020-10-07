@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import LoadingIndicator from 'components/LoadingIndicator';
 import React, { memo, useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -20,6 +20,7 @@ import { useInjectSaga } from 'utils/injectSaga';
 import { login } from './actions';
 import reducer from './reducer';
 import saga from './saga';
+
 import makeSelectLoginPage, {
   makeSelectError,
   makeSelectIsLoggin,
@@ -33,6 +34,7 @@ import { debounce } from 'lodash';
 export function LoginPage({ loading, role, onLogin, isLoggin }) {
   useInjectReducer({ key: 'loginPage', reducer });
   useInjectSaga({ key: 'loginPage', saga });
+
   const classes = useStyles();
   const [user, setUser] = useState({ username: '', password: '' });
   const handleChange = debounce((name, value) => {
