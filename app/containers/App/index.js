@@ -18,44 +18,29 @@ import {
 import routes from './routes';
 import LoginPage from 'containers/LoginPage/Loadable';
 import GlobalStyle from '../../global-styles';
-import PrivateRoute from './privateRoute';
+import PrivateRoute from './PrivateRoute';
 import { makeSelectRole } from '../LoginPage/selectors';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
-import jwt from 'jwt-decode';
 
 // max-width: calc(768px + 16px * 5);
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import { loginSuccess } from '../LoginPage/actions';
 import useFilterMap from '../../components/hooks/useFilterMap';
+import Layouts from '../Layouts';
 
-function App({ role, autoLogin }) {
+function App({ role }) {
   const dataRoute = useFilterMap(role);
-  const token = localStorage.getItem('token');
-  useEffect(() => {
-    if (token) {
-      autoLogin(token);
-      const decoded = jwt(token, { header: true });
-      const { exp } = decoded;
-      if (new Date(exp * 1000) < Date.now()) {
-        console.log('blabla');
-      }
-    }
-  }, []);
-
   const renderRoute = () => {
     let result = null;
     //filter
 
     result = dataRoute.map((route, index) => {
       return (
-        <PrivateRoute
-          key={index}
-          path={route.path}
-          component={route.component}
-          layout={route.layout}
-        />
+        <Route key={route.name} path={route.path} exact={route.exact}>
+          <route.component />
+        </Route>
       );
     });
     return result;
@@ -63,11 +48,13 @@ function App({ role, autoLogin }) {
   return (
     <Router>
       <Switch>
-        <Route exact path="/login" component={LoginPage} />
-        {renderRoute()}
-        <PrivateRoute path="" component={NotFoundPage} />
+        <Route exact path="/login">
+          <LoginPage />
+        </Route>
+        <PrivateRoute path="/">
+          <Layouts>{renderRoute()}</Layouts>
+        </PrivateRoute>
       </Switch>
-      <GlobalStyle />
     </Router>
   );
 }
@@ -75,13 +62,8 @@ const mapStateToProps = createStructuredSelector({
   role: makeSelectRole(),
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    autoLogin: data => dispatch(loginSuccess(data)),
-  };
-};
 const withConnect = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  null,
 );
 export default compose(withConnect)(App);

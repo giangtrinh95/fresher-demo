@@ -55,7 +55,7 @@ function Layouts(props) {
   const handleLogout = () => {
     props.onLogout();
   };
-  const renderRoutes = () => {
+  const renderRouteLists = () => {
     let result = null;
     const dataRoute = useFilterMap(props.role);
     result = dataRoute.map((route, index) => (
@@ -122,7 +122,7 @@ function Layouts(props) {
           </IconButton>
         </div>
         <Divider />
-        <List>{renderRoutes()}</List>
+        <List>{renderRouteLists()}</List>
         <Divider />
       </Drawer>
       <main

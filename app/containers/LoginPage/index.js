@@ -49,11 +49,7 @@ export function LoginPage({ loading, role, onLogin, isLoggin }) {
     onLogin(user);
   };
   return isLoggin ? (
-    role === 'admin' ? (
-      <Redirect to="/dashboard" />
-    ) : (
-      <Redirect to="/report" />
-    )
+    <Redirect to="/" />
   ) : (
     <Container component="main" maxWidth="xs">
       <CssBaseline />

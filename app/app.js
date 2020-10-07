@@ -30,6 +30,8 @@ import configureStore from './configureStore';
 
 // Import i18n messages
 import { translationMessages } from './i18n';
+import jwt from 'jwt-decode';
+import { loginSuccess } from './containers/LoginPage/actions';
 
 // Observe loading of Open Sans (to remove open sans, remove the <link> tag in
 // the index.html file and this observer)
@@ -44,7 +46,17 @@ openSansObserver.load().then(() => {
 const initialState = {};
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById('app');
-
+const token = localStorage.getItem('token');
+if (token) {
+  if (token) {
+    store.dispatch(loginSuccess(token));
+    const decoded = jwt(token, { header: true });
+    const { exp } = decoded;
+    if (new Date(exp * 1000) < Date.now()) {
+      localStorage.clear('token');
+    }
+  }
+}
 const render = messages => {
   ReactDOM.render(
     <Provider store={store}>
